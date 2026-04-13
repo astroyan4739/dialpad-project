@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Design Knowledge Assistant</title>
+  <style>
+    /* ─── Dialtone tokens ─────────────────────────────────── */
+    :root {
+      --color-primary:       #6C4FF6;
+      --color-primary-hover: #5A3FD4;
+      --color-primary-light: #EDE9FE;
+      --color-gray-50:       #FAFAFA;
+      --color-gray-100:      #F5F5F5;
+      --color-gray-200:      #E5E5E5;
+      --color-gray-300:      #D4D4D4;
+      --color-gray-500:      #737373;
+      --color-gray-900:      #171717;
+      --color-white:         #FFFFFF;
+      --radius-component:    8px;
+      --radius-card:         12px;
+      --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --nav-width:    200px;
+      --detail-width: 280px;
+    }
+
+    /* ─── Reset ───────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-family);
+      font-size: 14px;
+      color: var(--color-gray-900);
+      height: 100vh;
+      display: flex;
+      gap: 24px;
+      overflow: hidden;
+      min-width: 900px;
+      background: var(--color-white);
+      padding: 24px 230px;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       NAV RAIL
+    ═══════════════════════════════════════════════════════ */
+    .nav-rail {
+      width: var(--nav-width);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 16px 12px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 8px 20px;
+    }
+    .nav-logo-icon { color: var(--color-primary); flex-shrink: 0; }
+    .nav-logo-text { font-size: 13px; font-weight: 600; color: var(--color-primary); }
+
+    .nav-items { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--radius-component);
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--color-gray-500);
+      transition: background 0.12s ease, color 0.12s ease;
+      user-select: none;
+    }
+    .nav-item:hover { background: var(--color-gray-200); color: var(--color-gray-900); }
+    .nav-item.active { background: var(--color-white); color: var(--color-gray-900); font-weight: 500; }
+    .nav-item svg { flex-shrink: 0; }
+
+    .nav-badge { margin-left: auto; font-size: 11px; color: var(--color-gray-500); font-weight: 500; }
+    .nav-badge-slash { font-size: 10px; color: var(--color-gray-300); }
+
+    .btn-reseed { display: none; }
+
+    /* ═══════════════════════════════════════════════════════
+       CONTENT AREA
+    ═══════════════════════════════════════════════════════ */
+    .content-area {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      border: 1px solid var(--color-gray-200);
+      border-radius: 16px;
+    }
+
+    /* ─── List pane ───────────────────────────────────────── */
+    .list-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .list-header {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--color-gray-200);
+      flex-shrink: 0;
+    }
+    .list-title { font-size: 16px; font-weight: 600; color: var(--color-gray-900); }
+
+    .btn-add {
+      width: 28px; height: 28px;
+      border: none; background: none;
+      border-radius: 6px; cursor: pointer;
+      font-size: 20px; color: var(--color-gray-500);
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1; transition: background 0.12s, color 0.12s;
+    }
+    .btn-add:hover { background: var(--color-gray-200); color: var(--color-gray-900); }
+
+    /* Search bar */
+    .search-bar {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--color-gray-200);
+      flex-shrink: 0;
+    }
+    .search-input {
+      width: 100%;
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-component);
+      padding: 8px 12px;
+      font-family: var(--font-family);
+      font-size: 14px;
+      outline: none;
+      background: var(--color-white);
+      transition: border-color 0.15s, box-shadow 0.15s;
+      color: var(--color-gray-900);
+    }
+    .search-input::placeholder { color: var(--color-gray-500); }
+    .search-input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(108,79,246,0.12);
+    }
+
+    /* Item list scroll container */
+    .item-list { flex: 1; overflow-y: auto; }
+
+    /* Individual row */
+    .item-row {
+      display: flex;
+      align-items: center;
+      padding: 10px 20px;
+      gap: 12px;
+      border-bottom: 1px solid var(--color-gray-100);
+      transition: background 0.1s ease;
+      position: relative;
+    }
+    .item-row:hover, .item-row.hovered { background: var(--color-gray-50); }
+
+    .item-icon {
+      width: 32px; height: 32px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .item-title {
+      flex: 1;
+      font-size: 14px;
+      color: var(--color-gray-900);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-type-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      flex-shrink: 0;
+      font-weight: 500;
+    }
+
+    .item-actions { display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
+    .item-row:hover .item-actions { opacity: 1; }
+
+    .item-action-btn {
+      width: 24px; height: 24px;
+      border: none; background: none;
+      border-radius: 4px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--color-gray-500);
+      transition: background 0.12s, color 0.12s;
+    }
+    .item-action-btn:hover { background: var(--color-gray-200); color: var(--color-gray-900); }
+
+    /* Empty state */
+    .empty-state {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 100%; text-align: center; padding: 40px;
+    }
+    .empty-state__icon { color: var(--color-gray-300); margin-bottom: 16px; }
+    .empty-state__heading { font-size: 16px; font-weight: 600; color: var(--color-gray-900); margin-bottom: 8px; }
+    .empty-state__text { font-size: 14px; color: var(--color-gray-500); line-height: 1.5; max-width: 220px; }
+
+    /* ─── Detail popover ──────────────────────────────────── */
+    .detail-panel {
+      position: fixed;
+      width: 260px;
+      background: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.05);
+      z-index: 50;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .detail-panel.hidden { display: none; }
+
+    .detail-title {
+      font-size: 14px; font-weight: 600;
+      color: var(--color-gray-900); line-height: 1.45;
+    }
+    .detail-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+    .detail-label {
+      font-size: 10px; text-transform: uppercase;
+      letter-spacing: 0.7px; color: var(--color-gray-500); font-weight: 600;
+    }
+    .detail-summary {
+      font-size: 13px; color: var(--color-gray-500); line-height: 1.65;
+    }
+
+    /* Tag pills (shared) */
+    .tag-pill { font-size: 11px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; font-weight: 500; }
+    .tag-pill--qa { background: var(--color-primary); color: var(--color-white); }
+
+    /* ═══════════════════════════════════════════════════════
+       CHAT PANE
+    ═══════════════════════════════════════════════════════ */
+    .chat-pane { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .chat-messages { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 12px; }
+
+    .chat-hint {
+      font-size: 13px; color: var(--color-gray-500); line-height: 1.5;
+      padding: 12px; background: var(--color-gray-50);
+      border-radius: var(--radius-component);
+      border: 1px solid var(--color-gray-200);
+    }
+
+    .chat-q {
+      font-size: 13px; font-weight: 500;
+      color: var(--color-gray-900);
+      padding: 2px 0;
+    }
+
+    .chat-answer-block {
+      background: var(--color-gray-50);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-component);
+      padding: 14px;
+      font-size: 13px; line-height: 1.65;
+      color: var(--color-gray-900);
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .chat-answer-block.streaming::after {
+      content: '▋';
+      animation: blink 1s step-end infinite;
+      color: var(--color-primary);
+    }
+
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    .chat-input-area {
+      padding: 14px 20px;
+      border-top: 1px solid var(--color-gray-200);
+      display: flex; flex-direction: column; gap: 10px; flex-shrink: 0;
+    }
+    .chat-textarea {
+      width: 100%;
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-component);
+      padding: 10px 12px;
+      font-family: var(--font-family); font-size: 14px;
+      resize: none; outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      color: var(--color-gray-900);
+    }
+    .chat-textarea::placeholder { color: var(--color-gray-500); }
+    .chat-textarea:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(108,79,246,0.12);
+    }
+    .chat-controls { display: flex; justify-content: space-between; align-items: center; }
+
+    .saved-confirm { font-size: 12px; color: #16A34A; }
+
+    /* Loading dot */
+    .loading-dot {
+      display: inline-block; width: 8px; height: 8px;
+      background: var(--color-primary); border-radius: 50%;
+      animation: pulse-dot 1.2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 0.4; transform: scale(0.8); }
+      50%       { opacity: 1;   transform: scale(1.1); }
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       BUTTONS
+    ═══════════════════════════════════════════════════════ */
+    .btn-primary {
+      background: var(--color-primary); color: var(--color-white);
+      border: none; border-radius: var(--radius-component);
+      padding: 8px 20px;
+      font-family: var(--font-family); font-size: 14px; font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, opacity 0.15s;
+    }
+    .btn-primary:hover:not(:disabled)  { background: var(--color-primary-hover); }
+    .btn-primary:active:not(:disabled) { transform: scale(0.98); }
+    .btn-primary:disabled              { opacity: 0.5; cursor: not-allowed; }
+
+    /* ═══════════════════════════════════════════════════════
+       ADD RESOURCE MODAL
+    ═══════════════════════════════════════════════════════ */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.35);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100;
+    }
+    .modal {
+      background: var(--color-white);
+      border-radius: var(--radius-card);
+      padding: 24px; width: 480px; max-width: 90vw;
+      display: flex; flex-direction: column; gap: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 15px; font-weight: 600; color: var(--color-gray-900); }
+    .modal-close {
+      width: 28px; height: 28px; border: none; background: none;
+      border-radius: 6px; cursor: pointer; font-size: 14px;
+      color: var(--color-gray-500);
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.12s, color 0.12s;
+    }
+    .modal-close:hover { background: var(--color-gray-100); color: var(--color-gray-900); }
+    .modal-textarea {
+      width: 100%;
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-component);
+      padding: 10px 12px;
+      font-family: var(--font-family); font-size: 14px;
+      resize: none; outline: none;
+      color: var(--color-gray-900);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .modal-textarea::placeholder { color: var(--color-gray-500); }
+    .modal-textarea:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(108,79,246,0.12);
+    }
+    .modal-footer { display: flex; justify-content: space-between; align-items: center; }
+    .error-msg { font-size: 12px; color: #DC2626; }
+  </style>
+</head>
+<body>
+
+  <!-- Nav Rail -->
+  <nav class="nav-rail">
+    <div class="nav-logo">
+      <svg class="nav-logo-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <rect x="1"  y="1"  width="6" height="6" rx="1.5" fill="currentColor" opacity="0.9"/>
+        <rect x="11" y="1"  width="6" height="6" rx="1.5" fill="currentColor" opacity="0.6"/>
+        <rect x="1"  y="11" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.6"/>
+        <rect x="11" y="11" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.3"/>
+      </svg>
+      <span class="nav-logo-text">DKA</span>
+    </div>
+
+    <ul class="nav-items" id="nav-items">
+      <li class="nav-item" data-view="search">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <circle cx="6.5" cy="6.5" r="4.5"/>
+          <line x1="10.2" y1="10.2" x2="14" y2="14"/>
+        </svg>
+        Search
+        <span class="nav-badge nav-badge-slash">/</span>
+      </li>
+      <li class="nav-item active" data-view="inbox">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="2" width="14" height="12" rx="1.5"/>
+          <path d="M1 9.5h3.5L6 12h4l1.5-2.5H15"/>
+        </svg>
+        Inbox
+        <span class="nav-badge" id="inbox-badge"></span>
+      </li>
+      <li class="nav-item" data-view="chat">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 10a1.5 1.5 0 0 1-1.5 1.5H4L1 14.5V3.5A1.5 1.5 0 0 1 2.5 2h10A1.5 1.5 0 0 1 14 3.5V10z"/>
+        </svg>
+        Chat
+      </li>
+    </ul>
+
+    <button class="btn-reseed" id="reseed-btn">↺ Clear &amp; Reseed</button>
+  </nav>
+
+  <!-- Content Area -->
+  <div class="content-area" id="content-area">
+
+    <!-- List pane (Inbox + Search views) -->
+    <div class="list-pane" id="list-pane">
+      <div class="list-header">
+        <h2 class="list-title" id="list-title">Inbox</h2>
+        <button class="btn-add" id="add-btn" title="Add resource">+</button>
+      </div>
+      <div class="search-bar" id="search-bar" style="display:none">
+        <input class="search-input" id="search-input" type="text" placeholder="Search resources…" autocomplete="off" />
+      </div>
+      <div class="item-list" id="item-list"></div>
+    </div>
+
+    <!-- Detail panel — shows on item hover -->
+    <div class="detail-panel hidden" id="detail-panel">
+      <h3 class="detail-title" id="detail-title"></h3>
+      <div class="detail-tags" id="detail-tags"></div>
+      <span class="detail-label">AI Summary</span>
+      <p class="detail-summary" id="detail-summary"></p>
+    </div>
+
+    <!-- Chat pane (hidden unless Chat nav active) -->
+    <div class="chat-pane" id="chat-pane" style="display:none">
+      <div class="list-header">
+        <h2 class="list-title">Chat</h2>
+      </div>
+      <div class="chat-messages" id="chat-messages">
+        <p class="chat-hint">Ask a design question — I'll search the knowledge base and synthesise an answer.</p>
+      </div>
+      <div class="chat-input-area">
+        <textarea class="chat-textarea" id="question-input" rows="3"
+          placeholder="What design patterns work best for onboarding flows?"></textarea>
+        <div class="chat-controls">
+          <span class="saved-confirm" id="saved-confirm" style="display:none">✓ Saved to knowledge base</span>
+          <span></span>
+          <button class="btn-primary" id="ask-btn">Ask</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Add Resource Modal -->
+  <div class="modal-overlay" id="modal-overlay" style="display:none">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Resource</h3>
+        <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
+      </div>
+      <textarea class="modal-textarea" id="resource-input" rows="5"
+        placeholder="Paste a URL, article text, or write a note…"></textarea>
+      <div class="modal-footer">
+        <span class="error-msg" id="resource-error"></span>
+        <button class="btn-primary" id="save-btn">Save to Knowledge Base</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ═══════════════════════════════════════════════════════════
+       T2 — localStorage knowledge base
+    ═══════════════════════════════════════════════════════════ */
+
+    const KB_KEY = 'dka_kb';
+
+    /* T8 — 4 seed items from real sources */
+    const SEED_ITEMS = [
+      {
+        id: 'seed-1', type: 'resource',
+        title: 'Designing with Claude Code',
+        summary: 'A video walkthrough of how designers can use Claude Code to drive their workflow — from idea to working interface without handing off to engineering. Shows how natural-language prompting changes what a designer can ship alone.',
+        tags: ['Claude Code', 'AI tools', 'design workflow'],
+        url: 'https://www.youtube.com/watch?v=lkKGQVHrXzE',
+        content: '',
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
+      },
+      {
+        id: 'seed-2', type: 'resource',
+        title: 'Build a Beautiful Mobile App with Claude Code in 16 Minutes',
+        summary: 'A full tutorial demonstrating how to take a mobile app from zero to visually polished in under 20 minutes using Claude Code. Makes the case that the bottleneck in shipping is now taste and direction, not code.',
+        tags: ['Claude Code', 'mobile', 'tutorial'],
+        url: 'https://www.youtube.com/watch?v=oS53by4Hwvo',
+        content: '',
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
+      },
+      {
+        id: 'seed-3', type: 'resource',
+        title: 'When Software Had a Soul',
+        summary: 'A meditation on how software once had texture, personality, and humanity — and how optimisation culture and AI have traded that soul for scale. The argument: taste and obsession are irreplaceable, and the best outcome of AI is empowering people with vision, not factories that ship slop.',
+        tags: ['design culture', 'craft', 'AI'],
+        url: 'https://x.com/ryolu_/status/2038841219556724924',
+        content: `when software had a soul
+
+there was a moment around 2005 when using a Mac felt like touching something alive.
+
+the dock bounced. the genie effect swooped. exposé scattered your windows like cards on a table. none of it was strictly necessary. all of it felt like someone cared – not about metrics, but about the feeling of using a machine.
+
+software back then had texture. it had a philosophy. you could feel the person behind it. someone made a decision to make that icon beautiful, to animate that transition just so, to write that error message with a little warmth. apps had personalities. some were weird. some were over-designed in ways that would make a modern PM flinch. but they were alive.
+
+the web was the same. personal sites were genuinely personal. blogs felt like letters. forums had regulars. you knew who made what. the internet had neighborhoods, and each one felt different.
+
+nothing was optimized for scale. things were made by people who loved what they were making.
+
+somewhere along the way, we traded all of that for growth.
+
+A/B tests flattened the edges. design systems standardized the personality out. everything got faster, smoother, more consistent – and somehow less interesting. the quirks were removed because they didn't test well. the warmth got cut because it wasn't measurable. we optimized our way into a world of things that work perfectly and feel like nothing.
+
+now every app looks the same. every interface follows the same patterns. every product speaks in the same calm, frictionless voice. the humanity got rounded off.
+
+and then came AI agents. and the speed got inhuman.
+
+now you can generate an entire product in an afternoon. ship a feature before lunch. spin up ten variations before anyone's had their coffee. the gap from idea to code is basically zero.
+
+which sounds incredible. and it is. but there's a catch.
+
+when making things is too easy, the slop comes for free too. mediocre things don't look obviously bad – they look fine. they work. they ship. they pass review. and now there are infinite of them.
+
+this is the thing that keeps me up at night. not that AI will replace people who care. but that it will drown them out.
+
+here's what I still believe: the best things are made by people who couldn't help themselves. someone who lost sleep over an icon. who rewrote the same line of copy twelve times. who added an animation nobody asked for because it made the thing feel right. that obsession – that's not inefficiency. that's the whole point.
+
+AI doesn't make that irrelevant. it actually makes it rarer and more valuable. taste is not a markdown skill. caring is not a parameter.
+
+if we get this right, we don't get a faster factory. we get a renaissance.`,
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+      },
+      {
+        id: 'seed-4', type: 'resource',
+        title: 'Designing Delightful Frontends with GPT-5.4',
+        summary: 'Practical techniques for using GPT-5.4 to create polished, production-ready frontend designs — emphasising real design constraints, visual references, and avoiding generic patterns. Lower reasoning levels, grounded copy, and intentional design systems consistently outperform unconstrained generation.',
+        tags: ['AI UX', 'frontend', 'GPT'],
+        url: 'https://developers.openai.com/blog/designing-delightful-frontends-with-gpt-5-4',
+        content: '',
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
+      },
+    ];
+
+    function getKB() {
+      try { return JSON.parse(localStorage.getItem(KB_KEY) || '[]'); }
+      catch { return []; }
+    }
+    function saveKB(items) {
+      try { localStorage.setItem(KB_KEY, JSON.stringify(items)); } catch {}
+    }
+    function addItem(item) {
+      const items = getKB();
+      const newItem = {
+        id:        item.id        ?? String(Date.now()),
+        type:      item.type      ?? 'resource',
+        title:     item.title     ?? 'Untitled',
+        summary:   item.summary   ?? '',
+        tags:      item.tags      ?? [],
+        url:       item.url       ?? '',
+        content:   item.content   ?? '',
+        question:  item.question  ?? undefined,
+        answer:    item.answer    ?? undefined,
+        createdAt: item.createdAt ?? new Date().toISOString(),
+      };
+      const updated = [newItem, ...items];
+      saveKB(updated);
+      return updated;
+    }
+    function deleteItem(id) {
+      const updated = getKB().filter(i => i.id !== id);
+      saveKB(updated);
+      return updated;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       T3 — Claude API
+    ═══════════════════════════════════════════════════════════ */
+
+    const CLAUDE_API_KEY  = 'REDACTED';
+    const CLAUDE_MODEL    = 'claude-sonnet-4-6';
+    const CLAUDE_ENDPOINT = 'https://api.anthropic.com/v1/messages';
+    const CLAUDE_HEADERS  = {
+      'Content-Type':                              'application/json',
+      'x-api-key':                                 CLAUDE_API_KEY,
+      'anthropic-version':                         '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    };
+
+    async function callClaude(systemPrompt, userMessage) {
+      const res  = await fetch(CLAUDE_ENDPOINT, {
+        method: 'POST', headers: CLAUDE_HEADERS,
+        body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 1000, system: systemPrompt, messages: [{ role: 'user', content: userMessage }] }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error?.message ?? `API error ${res.status}`);
+      return data.content[0].text;
+    }
+
+    async function callClaudeStream(systemPrompt, userMessage, onChunk, onDone) {
+      const res = await fetch(CLAUDE_ENDPOINT, {
+        method: 'POST', headers: CLAUDE_HEADERS,
+        body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 1000, stream: true, system: systemPrompt, messages: [{ role: 'user', content: userMessage }] }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error?.message ?? `API error ${res.status}`);
+      }
+      const reader  = res.body.getReader();
+      const decoder = new TextDecoder();
+      let   buffer  = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const payload = line.slice(6).trim();
+          if (payload === '[DONE]') continue;
+          try {
+            const evt = JSON.parse(payload);
+            if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') onChunk(evt.delta.text);
+            if (evt.type === 'message_stop') { onDone(); return; }
+          } catch {}
+        }
+      }
+      onDone();
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       Helpers
+    ═══════════════════════════════════════════════════════════ */
+
+    function tagPalette(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      const p = [
+        { bg: '#EDE9FE', color: '#5B21B6' },
+        { bg: '#DBEAFE', color: '#1E40AF' },
+        { bg: '#D1FAE5', color: '#065F46' },
+        { bg: '#FEF3C7', color: '#92400E' },
+      ];
+      return p[Math.abs(hash) % 4];
+    }
+
+    function relativeTime(iso) {
+      const d = Math.floor((Date.now() - new Date(iso)) / 60000);
+      if (d < 1)  return 'just now';
+      if (d < 60) return `${d}m ago`;
+      const h = Math.floor(d / 60);
+      if (h < 24) return `${h}h ago`;
+      return `${Math.floor(h / 24)}d ago`;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       View state
+    ═══════════════════════════════════════════════════════════ */
+
+    let currentView  = 'inbox';
+    let searchQuery  = '';
+    let hideDetailTimer = null;
+
+    function switchView(view) {
+      currentView = view;
+
+      document.querySelectorAll('.nav-item').forEach(el =>
+        el.classList.toggle('active', el.dataset.view === view)
+      );
+
+      const listPane    = document.getElementById('list-pane');
+      const chatPane    = document.getElementById('chat-pane');
+      const detailPanel = document.getElementById('detail-panel');
+      const searchBar   = document.getElementById('search-bar');
+      const listTitle   = document.getElementById('list-title');
+      const addBtn      = document.getElementById('add-btn');
+
+      if (view === 'chat') {
+        listPane.style.display = 'none';
+        chatPane.style.display = 'flex';
+        detailPanel.classList.add('hidden');
+      } else {
+        chatPane.style.display = 'none';
+        listPane.style.display = 'flex';
+
+        if (view === 'search') {
+          listTitle.textContent     = 'Search';
+          searchBar.style.display   = 'block';
+          addBtn.style.visibility   = 'hidden';
+          setTimeout(() => document.getElementById('search-input').focus(), 50);
+        } else {
+          listTitle.textContent     = 'Inbox';
+          searchBar.style.display   = 'none';
+          addBtn.style.visibility   = 'visible';
+          searchQuery = '';
+          document.getElementById('search-input').value = '';
+        }
+        renderList();
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       Render list (T5)
+    ═══════════════════════════════════════════════════════════ */
+
+    function renderList() {
+      const list  = document.getElementById('item-list');
+      let   items = getKB();
+
+      if (currentView === 'search' && searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        items = items.filter(i =>
+          i.title.toLowerCase().includes(q) ||
+          (i.tags || []).some(t => t.toLowerCase().includes(q))
+        );
+      }
+
+      updateBadge();
+
+      if (items.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <svg class="empty-state__icon" width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <circle cx="20" cy="20" r="17" stroke="currentColor" stroke-width="2"/>
+              <path d="M13 20h14M20 13v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <h3 class="empty-state__heading">Nothing here yet</h3>
+            <p class="empty-state__text">Click <strong>+</strong> to add your first design resource.</p>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = '';
+      items.forEach(item => list.appendChild(createRow(item)));
+    }
+
+    function createRow(item) {
+      const row   = document.createElement('div');
+      row.className = 'item-row';
+
+      const pal    = tagPalette(item.tags?.[0] || item.title);
+      const letter = item.title.charAt(0).toUpperCase();
+      const isQA   = item.type === 'qa';
+
+      row.innerHTML = `
+        <div class="item-icon" style="background:${pal.bg};color:${pal.color}">${letter}</div>
+        <span class="item-title">${item.title}</span>
+        ${isQA ? '<span class="item-type-badge">Q&amp;A</span>' : ''}
+        <div class="item-actions">
+          <button class="item-action-btn delete-btn" title="Delete">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h8M5 3V2h2v1M3 3l.5 7h5L9 3"/>
+            </svg>
+          </button>
+        </div>`;
+
+      row.querySelector('.delete-btn').addEventListener('click', e => {
+        e.stopPropagation();
+        deleteItem(item.id);
+        renderList();
+        document.getElementById('detail-panel').classList.add('hidden');
+      });
+
+      row.addEventListener('mouseenter', () => showDetail(item, row));
+      row.addEventListener('mouseleave', scheduleHideDetail);
+
+      return row;
+    }
+
+    function updateBadge() {
+      const n = getKB().length;
+      document.getElementById('inbox-badge').textContent = n > 0 ? n : '';
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       Hover detail panel
+    ═══════════════════════════════════════════════════════════ */
+
+    function showDetail(item, row) {
+      clearTimeout(hideDetailTimer);
+
+      document.querySelectorAll('.item-row').forEach(r => r.classList.remove('hovered'));
+      row.classList.add('hovered');
+
+      document.getElementById('detail-title').textContent   = item.title;
+      document.getElementById('detail-summary').textContent =
+        (item.type === 'qa' ? item.answer : item.summary) || 'No summary available.';
+
+      const tagsEl = document.getElementById('detail-tags');
+      tagsEl.innerHTML = (item.tags || []).map(tag => {
+        if (tag === 'Q&A') return `<span class="tag-pill tag-pill--qa">Q&amp;A</span>`;
+        const { bg, color } = tagPalette(tag);
+        return `<span class="tag-pill" style="background:${bg};color:${color}">${tag}</span>`;
+      }).join('');
+
+      const panel     = document.getElementById('detail-panel');
+      panel.classList.remove('hidden');
+
+      /* Position popover to the right of the row, clamped to viewport */
+      const rect       = row.getBoundingClientRect();
+      const popW       = 260;
+      const gap        = 12;
+      let   left       = rect.right + gap;
+      if (left + popW > window.innerWidth - 8) {
+        left = rect.left - popW - gap; // flip to left if no room
+      }
+      const popH       = panel.offsetHeight;
+      let   top        = rect.top + (rect.height / 2) - (popH / 2);
+      top = Math.max(8, Math.min(top, window.innerHeight - popH - 8));
+
+      panel.style.left = left + 'px';
+      panel.style.top  = top  + 'px';
+    }
+
+    function scheduleHideDetail() {
+      hideDetailTimer = setTimeout(() => {
+        document.getElementById('detail-panel').classList.add('hidden');
+        document.querySelectorAll('.item-row').forEach(r => r.classList.remove('hovered'));
+      }, 250);
+    }
+
+    /* Popover is pointer-events:none — no mouse events needed on it */
+
+    /* ═══════════════════════════════════════════════════════════
+       Nav
+    ═══════════════════════════════════════════════════════════ */
+
+    document.querySelectorAll('.nav-item').forEach(el =>
+      el.addEventListener('click', () => switchView(el.dataset.view))
+    );
+
+    /* "/" keyboard shortcut → Search */
+    document.addEventListener('keydown', e => {
+      if (e.key === '/' && !e.target.matches('textarea, input')) {
+        e.preventDefault();
+        switchView('search');
+      }
+      if (e.key === 'Escape') closeModal();
+    });
+
+    /* Search filter */
+    document.getElementById('search-input').addEventListener('input', e => {
+      searchQuery = e.target.value;
+      renderList();
+    });
+
+    /* ═══════════════════════════════════════════════════════════
+       Add Resource Modal (T4)
+    ═══════════════════════════════════════════════════════════ */
+
+    function openModal() {
+      document.getElementById('modal-overlay').style.display = 'flex';
+      document.getElementById('resource-input').value = '';
+      document.getElementById('resource-error').textContent = '';
+      document.getElementById('save-btn').textContent = 'Save to Knowledge Base';
+      document.getElementById('save-btn').disabled = false;
+      setTimeout(() => document.getElementById('resource-input').focus(), 50);
+    }
+    function closeModal() {
+      document.getElementById('modal-overlay').style.display = 'none';
+    }
+
+    document.getElementById('add-btn').addEventListener('click', openModal);
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-overlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal-overlay')) closeModal();
+    });
+
+    document.getElementById('save-btn').addEventListener('click', async () => {
+      const input   = document.getElementById('resource-input');
+      const btn     = document.getElementById('save-btn');
+      const errorEl = document.getElementById('resource-error');
+      const text    = input.value.trim();
+      if (!text) return;
+
+      btn.textContent = 'Saving…';
+      btn.disabled    = true;
+      errorEl.textContent = '';
+
+      try {
+        const system = `You are a design knowledge assistant. Given a piece of text (article, URL, note), extract a concise title, a 2-sentence summary, and 3 relevant tags. Respond ONLY with valid JSON in this format: {"title": "", "summary": "", "tags": ["tag1", "tag2", "tag3"]}. No markdown, no explanation, just JSON.`;
+        const parsed = JSON.parse(await callClaude(system, text));
+        addItem({ type: 'resource', title: parsed.title, summary: parsed.summary, tags: parsed.tags, content: text });
+        closeModal();
+        switchView('inbox');
+      } catch (err) {
+        errorEl.textContent = err.message;
+        btn.textContent     = 'Save to Knowledge Base';
+        btn.disabled        = false;
+      }
+    });
+
+    /* ═══════════════════════════════════════════════════════════
+       Chat / Ask a Question (T6)
+    ═══════════════════════════════════════════════════════════ */
+
+    document.getElementById('ask-btn').addEventListener('click', async () => {
+      const qInput       = document.getElementById('question-input');
+      const askBtn       = document.getElementById('ask-btn');
+      const messages     = document.getElementById('chat-messages');
+      const savedConfirm = document.getElementById('saved-confirm');
+      const question     = qInput.value.trim();
+      if (!question) return;
+
+      const kb      = getKB();
+      const context = kb.map(i => `Title: ${i.title}\nSummary: ${i.summary}\nTags: ${i.tags.join(', ')}`).join('\n\n---\n\n');
+      const system  = `You are a design knowledge assistant for a product design team. You have access to the team's shared knowledge base. Answer the designer's question using the knowledge base context. Be specific, practical, and reference relevant resources when helpful. Knowledge base:\n\n${context}`;
+
+      /* Question bubble */
+      const qEl = document.createElement('p');
+      qEl.className = 'chat-q';
+      qEl.textContent = question;
+      messages.appendChild(qEl);
+
+      /* Answer block */
+      const aEl = document.createElement('div');
+      aEl.className = 'chat-answer-block streaming';
+      aEl.innerHTML = '<span class="loading-dot"></span>';
+      messages.appendChild(aEl);
+      messages.scrollTop = messages.scrollHeight;
+
+      askBtn.textContent = 'Thinking…';
+      askBtn.disabled    = true;
+      qInput.value       = '';
+      savedConfirm.style.display = 'none';
+
+      let fullAnswer = '';
+
+      try {
+        await callClaudeStream(system, question,
+          chunk => {
+            if (aEl.querySelector('.loading-dot')) aEl.innerHTML = '';
+            fullAnswer += chunk;
+            aEl.textContent = fullAnswer;
+            aEl.classList.add('streaming');
+            messages.scrollTop = messages.scrollHeight;
+          },
+          () => {
+            aEl.classList.remove('streaming');
+            addItem({ type: 'qa', title: question.slice(0, 60), summary: fullAnswer.slice(0, 200), answer: fullAnswer, question, tags: ['Q&A'] });
+            renderList();
+            savedConfirm.style.display = 'block';
+            setTimeout(() => { savedConfirm.style.display = 'none'; }, 3000);
+            askBtn.textContent = 'Ask';
+            askBtn.disabled    = false;
+          }
+        );
+      } catch (err) {
+        aEl.classList.remove('streaming');
+        aEl.textContent    = `Error: ${err.message}`;
+        askBtn.textContent = 'Ask';
+        askBtn.disabled    = false;
+      }
+    });
+
+    /* ═══════════════════════════════════════════════════════════
+       T8 — Reseed
+    ═══════════════════════════════════════════════════════════ */
+
+    document.getElementById('reseed-btn').addEventListener('click', () => {
+      saveKB(SEED_ITEMS);
+      switchView('inbox');
+    });
+
+    /* ═══════════════════════════════════════════════════════════
+       Init
+    ═══════════════════════════════════════════════════════════ */
+
+    (function init() {
+      if (getKB().length === 0) {
+        saveKB(SEED_ITEMS);
+        console.log('[DKA] Seeded', SEED_ITEMS.length, 'items.');
+      } else {
+        console.log('[DKA] Loaded', getKB().length, 'item(s).');
+      }
+      renderList();
+    })();
+  </script>
+
+</body>
+</html>
