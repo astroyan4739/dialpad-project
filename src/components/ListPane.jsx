@@ -97,7 +97,7 @@ export default function ListPane({
                   <path d="M13 20h14M20 13v14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
                 <h3 style={styles.emptyHeading}>Nothing here yet</h3>
-                <p style={styles.emptyText}>Click <strong>+</strong> to add your first design resource.</p>
+                <p style={styles.emptyText}>Click <strong>+</strong> or <kbd style={styles.kbd}>⌘V</kbd> to add your first design resource.</p>
               </>
             )}
           </div>
