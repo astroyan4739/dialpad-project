@@ -15,7 +15,7 @@ function getDateGroup(iso) {
 export default function ListPane({
   currentView, searchQuery, onSearchChange,
   items, onDelete, onOpenModal, selectedTag,
-  allTags, onUpdateTags, onEditItem,
+  allTags, onUpdateTags, onEditItem, onOpenDetail,
 }) {
   const [addHovered, setAddHovered] = useState(false)
   const isSearch = currentView === 'search' && searchQuery.trim()
@@ -23,12 +23,13 @@ export default function ListPane({
 
   const filtered = isSearch
     ? items.filter(i =>
-        i.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (i.tags || []).some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))
+        i.type !== 'qa' &&
+        (i.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (i.tags || []).some(t => t.toLowerCase().includes(searchQuery.toLowerCase())))
       )
     : isTag
     ? items.filter(i => (i.tags || []).includes(selectedTag))
-    : items
+    : items.filter(i => i.type !== 'qa')
 
   // Group by date (inbox + tag views)
   const grouped = isSearch
@@ -92,7 +93,7 @@ export default function ListPane({
             <div key={label || 'results'} style={{ marginTop: 20 }}>
               {label && <div style={styles.groupLabel}>{label}</div>}
               {groupItems.map(item => (
-                <ItemRow key={item.id} item={item} onDelete={onDelete} allTags={allTags} onUpdateTags={onUpdateTags} onEditItem={onEditItem} />
+                <ItemRow key={item.id} item={item} onDelete={onDelete} allTags={allTags} onUpdateTags={onUpdateTags} onEditItem={onEditItem} onOpenDetail={onOpenDetail} />
               ))}
             </div>
           ))
@@ -114,16 +115,27 @@ const styles = {
     transition: 'background 0.12s, color 0.12s',
   },
   addBtnHovered: {
-    background: 'var(--color-gray-100)',
+    background: '#E8E5FF',
     color: 'var(--color-gray-900)',
   },
   searchBar:   { padding: '10px 16px', borderBottom: '1px solid var(--color-gray-200)', flexShrink: 0 },
   searchInput: {
-    width: '100%', border: '1px solid var(--color-gray-200)',
+    width: '100%', border: '1px solid var(--color-border)',
     borderRadius: 'var(--radius-component)', padding: '8px 12px',
     fontFamily: 'var(--font-family)', fontSize: 14, outline: 'none',
     background: 'var(--color-white)', color: 'var(--color-gray-900)',
     transition: 'border-color 0.15s, box-shadow 0.15s',
+  },
+  proTip: {
+    padding: '6px 20px 8px',
+    fontSize: 12, color: 'var(--color-gray-300)',
+    borderBottom: '1px solid #D8D9E0',
+    flexShrink: 0,
+  },
+  kbd: {
+    fontFamily: 'inherit', background: 'var(--color-gray-100)',
+    borderRadius: 4, padding: '1px 5px', fontSize: 11,
+    color: 'var(--color-gray-500)',
   },
   list: { flex: 1, overflowY: 'auto' },
   groupLabel: {

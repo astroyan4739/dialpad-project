@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { callClaude } from '../lib/claude'
+import { callClaude, extractJSON } from '../lib/claude'
 import { addItem } from '../lib/kb'
 
 export default function AddResourceModal({ onClose, onSave, initialText = '' }) {
@@ -12,8 +12,8 @@ export default function AddResourceModal({ onClose, onSave, initialText = '' }) 
     setLoading(true)
     setError('')
     try {
-      const system = `You are a design knowledge assistant. Given a piece of text (article, URL, note), extract a concise title, a 2-sentence summary, and 3 relevant tags. Respond ONLY with valid JSON in this format: {"title": "", "summary": "", "tags": ["tag1", "tag2", "tag3"]}. No markdown, no explanation, just JSON.`
-      const parsed = JSON.parse(await callClaude(system, text))
+      const system = `You are a design knowledge assistant. The user will paste text, a URL, or a note. Your job is ALWAYS to return valid JSON — never refuse, never explain. If given a URL you cannot visit, infer the title and topic from the URL path and domain. Respond ONLY with this JSON shape: {"title": "", "summary": "", "tags": ["tag1", "tag2", "tag3"]}. Rules: title is concise (≤8 words), summary is 1–2 sentences, tags is exactly 3 lowercase strings. No markdown, no code fences, no explanation — just the raw JSON object.`
+      const parsed = extractJSON(await callClaude(system, text))
       onSave(parsed.title, parsed.summary, parsed.tags, text)
       onClose()
     } catch (err) {
@@ -29,7 +29,7 @@ export default function AddResourceModal({ onClose, onSave, initialText = '' }) 
           <h3 style={styles.title}>Add Resource</h3>
           <button style={styles.closeBtn} onClick={onClose}>✕</button>
         </div>
-        <p style={styles.hint}>Press <kbd style={styles.kbd}>⌘V</kbd> anywhere on this page to save a link.</p>
+        <p style={styles.hint}>Pro tip: Press <kbd style={styles.kbd}>⌘V</kbd> anywhere on the page to save a link.</p>
         <textarea
           autoFocus
           style={styles.textarea}
@@ -59,7 +59,7 @@ const styles = {
   header:  { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   title:   { fontSize: 15, fontWeight: 600, color: 'var(--color-gray-900)' },
   closeBtn:{ width: 28, height: 28, border: 'none', background: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 14, color: 'var(--color-gray-500)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  textarea:{ width: '100%', border: '1px solid var(--color-gray-200)', borderRadius: 'var(--radius-component)', padding: '10px 12px', fontFamily: 'var(--font-family)', fontSize: 14, resize: 'none', outline: 'none', color: 'var(--color-gray-900)' },
+  textarea:{ width: '100%', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-component)', padding: '10px 12px', fontFamily: 'var(--font-family)', fontSize: 14, resize: 'none', outline: 'none', color: 'var(--color-gray-900)' },
   footer:  { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   hint: { fontSize: 12, color: 'var(--color-gray-400)', margin: '-6px 0' },
   kbd:  { fontFamily: 'inherit', background: 'var(--color-gray-100)', borderRadius: 4, padding: '1px 5px', fontSize: 11 },

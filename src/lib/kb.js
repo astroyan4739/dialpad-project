@@ -1,5 +1,12 @@
 const KB_KEY = 'dka_kb'
 
+export const TEAM = [
+  { id: 'u1', name: 'Astro Yan',   initials: 'AY', color: '#7C3AED' },
+  { id: 'u2', name: 'Sarah Chen',  initials: 'SC', color: '#0EA5E9' },
+  { id: 'u3', name: 'Mike Park',   initials: 'MP', color: '#16A34A' },
+  { id: 'u4', name: 'Lily Wang',   initials: 'LW', color: '#EA580C' },
+]
+
 export const SEED_ITEMS = [
   {
     id: 'seed-1', type: 'resource',
@@ -7,6 +14,7 @@ export const SEED_ITEMS = [
     summary: 'A video walkthrough of how designers can use Claude Code to drive their workflow — from idea to working interface without handing off to engineering. Shows how natural-language prompting changes what a designer can ship alone.',
     tags: ['Claude Code', 'AI tools', 'design workflow'],
     url: 'https://www.youtube.com/watch?v=lkKGQVHrXzE', content: '',
+    creatorId: 'u1',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
   },
   {
@@ -15,6 +23,7 @@ export const SEED_ITEMS = [
     summary: 'A full tutorial demonstrating how to take a mobile app from zero to visually polished in under 20 minutes using Claude Code. Makes the case that the bottleneck in shipping is now taste and direction, not code.',
     tags: ['Claude Code', 'mobile', 'tutorial'],
     url: 'https://www.youtube.com/watch?v=oS53by4Hwvo', content: '',
+    creatorId: 'u2',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
   },
   {
@@ -24,6 +33,7 @@ export const SEED_ITEMS = [
     tags: ['design culture', 'craft', 'AI'],
     url: 'https://x.com/ryolu_/status/2038841219556724924',
     content: `when software had a soul — there was a moment around 2005 when using a Mac felt like touching something alive. the dock bounced. the genie effect swooped. none of it was strictly necessary. all of it felt like someone cared. software back then had texture, philosophy, personality. somewhere along the way, we traded all of that for growth. A/B tests flattened the edges. design systems standardized the personality out. and then came AI agents, and the speed got inhuman. when making things is too easy, the slop comes for free too. AI doesn't make taste irrelevant — it makes it rarer and more valuable. if we get this right, we don't get a faster factory. we get a renaissance.`,
+    creatorId: 'u3',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
   },
   {
@@ -32,9 +42,17 @@ export const SEED_ITEMS = [
     summary: 'Practical techniques for using GPT-5.4 to create polished, production-ready frontend designs — emphasising real design constraints, visual references, and avoiding generic patterns. Lower reasoning levels, grounded copy, and intentional design systems consistently outperform unconstrained generation.',
     tags: ['AI UX', 'frontend', 'GPT'],
     url: 'https://developers.openai.com/blog/designing-delightful-frontends-with-gpt-5-4', content: '',
+    creatorId: 'u4',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
   },
 ]
+
+// Returns the first URL found in text, or ''
+export function extractUrl(text) {
+  if (!text) return ''
+  const match = text.match(/https?:\/\/[^\s]+/)
+  return match ? match[0] : ''
+}
 
 export function getKB() {
   try { return JSON.parse(localStorage.getItem(KB_KEY) || '[]') }

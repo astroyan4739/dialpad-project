@@ -9,6 +9,14 @@ const HEADERS = {
   'anthropic-dangerous-direct-browser-access': 'true',
 }
 
+// Extracts JSON object from a string even if Claude adds surrounding text
+export function extractJSON(text) {
+  try { return JSON.parse(text) } catch {}
+  const match = text.match(/\{[\s\S]*\}/)
+  if (match) return JSON.parse(match[0])
+  throw new Error('No valid JSON found in response')
+}
+
 export async function callClaude(systemPrompt, userMessage) {
   const res  = await fetch(CLAUDE_ENDPOINT, {
     method: 'POST', headers: HEADERS,

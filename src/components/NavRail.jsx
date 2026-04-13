@@ -8,10 +8,22 @@ import {
 } from '@radix-ui/react-icons'
 import { tagPalette } from '../lib/kb'
 
+const AI_GRADIENT = 'linear-gradient(135deg, #7C3AED 0%, #C026D3 50%, #F97316 100%)'
+
+const AiChatIcon = () => (
+  <div style={{
+    width: 20, height: 20, borderRadius: 5, flexShrink: 0,
+    background: AI_GRADIENT,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  }}>
+    <ChatBubbleIcon width={11} height={11} color="white"/>
+  </div>
+)
+
 const NAV_ITEMS = [
-  { view: 'search', label: 'Search', hint: '/', icon: <MagnifyingGlassIcon width={15} height={15}/> },
-  { view: 'inbox',  label: 'Inbox',               icon: <EnvelopeOpenIcon  width={15} height={15}/> },
-  { view: 'chat',   label: 'Chat',                icon: <ChatBubbleIcon    width={15} height={15}/> },
+  { view: 'search', label: 'Search',  hint: '/', icon: <MagnifyingGlassIcon width={15} height={15}/> },
+  { view: 'inbox',  label: 'Inbox',              icon: <EnvelopeOpenIcon    width={15} height={15}/> },
+  { view: 'chat',   label: 'AI Chat', ai: true,  icon: <AiChatIcon /> },
 ]
 
 export default function NavRail({ currentView, onViewChange, itemCount, tags = [], tagCounts = {}, selectedTag, onTagSelect }) {
@@ -31,7 +43,7 @@ export default function NavRail({ currentView, onViewChange, itemCount, tags = [
       </div>
 
       <ul style={styles.items}>
-        {NAV_ITEMS.map(({ view, label, hint, icon }) => {
+        {NAV_ITEMS.map(({ view, label, hint, icon, ai }) => {
           const active  = currentView === view
           const hovered = hoveredView === view && !active
           return (
@@ -47,7 +59,9 @@ export default function NavRail({ currentView, onViewChange, itemCount, tags = [
               onMouseLeave={() => setHoveredView(null)}
             >
               {icon}
-              {label}
+              {ai ? (
+                <span style={styles.aiLabel}>{label}</span>
+              ) : label}
               {hint && <span style={styles.hint}>{hint}</span>}
               {view === 'inbox' && itemCount > 0 && (
                 <span style={styles.badge}>{itemCount}</span>
@@ -111,18 +125,18 @@ const styles = {
     borderRadius: 'var(--radius-component)',
     cursor: 'pointer',
     fontSize: 14,
-    color: 'var(--color-gray-500)',
+    color: '#694AC6',
     userSelect: 'none',
     transition: 'background 0.12s ease, color 0.12s ease',
   },
-  itemActive:  { background: 'var(--color-gray-100)', color: 'var(--color-gray-900)', fontWeight: 500 },
-  itemHovered: { background: 'var(--color-gray-200)', color: 'var(--color-gray-900)' },
-  hint:  { marginLeft: 'auto', fontSize: 10, color: 'var(--color-gray-300)' },
-  badge: { marginLeft: 'auto', fontSize: 11, color: 'var(--color-gray-500)', fontWeight: 500 },
+  itemActive:  { background: '#E8E5FF', color: '#3D1F8A', fontWeight: 500 },
+  itemHovered: { background: '#E8E5FF', color: '#3D1F8A' },
+  hint:  { marginLeft: 'auto', fontSize: 10, color: '#C4AFF5' },
+  badge: { marginLeft: 'auto', fontSize: 11, color: '#694AC6', fontWeight: 500 },
   tagsSection: { marginTop: 24, padding: '0 8px' },
   tagsLabel: {
     display: 'flex', alignItems: 'center',
-    fontSize: 13, fontWeight: 400, color: 'var(--color-gray-500)',
+    fontSize: 13, fontWeight: 400, color: '#694AC6',
     marginBottom: 6, padding: '0 2px',
     cursor: 'pointer', userSelect: 'none',
   },
@@ -132,8 +146,15 @@ const styles = {
     padding: '5px 6px', borderRadius: 'var(--radius-component)',
     cursor: 'pointer', userSelect: 'none',
   },
-  tagItemActive: { background: 'var(--color-gray-100)', color: 'var(--color-gray-900)' },
-  tagHash:  { fontSize: 13, color: 'var(--color-gray-400)', fontWeight: 500, flexShrink: 0 },
-  tagName:  { fontSize: 13, color: 'var(--color-gray-500)', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
-  tagCount: { fontSize: 11, color: 'var(--color-gray-500)', flexShrink: 0 },
+  tagItemActive: { background: '#E8E5FF', color: '#3D1F8A' },
+  aiLabel: {
+    background: AI_GRADIENT,
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+    fontWeight: 500,
+  },
+  tagHash:  { fontSize: 13, color: '#9B7AE0', fontWeight: 500, flexShrink: 0 },
+  tagName:  { fontSize: 13, color: '#694AC6', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+  tagCount: { fontSize: 11, color: '#694AC6', flexShrink: 0 },
 }

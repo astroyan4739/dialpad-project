@@ -30,7 +30,7 @@ const styles = {
     position: 'fixed',
     width: 260,
     background: 'var(--color-white)',
-    border: '1px solid var(--color-gray-200)',
+    border: '1px solid var(--color-border)',
     borderRadius: 12,
     padding: '14px 16px',
     boxShadow: '0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.05)',

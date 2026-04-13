@@ -101,7 +101,7 @@ const styles = {
     background: 'var(--color-white)',
   },
   textarea: {
-    border: '1px solid var(--color-gray-200)',
+    border: '1px solid var(--color-border)',
     borderRadius: 'var(--radius-component)',
     padding: '10px 14px',
     fontSize: 14, fontFamily: 'var(--font-family)',
@@ -113,11 +113,11 @@ const styles = {
     display: 'flex', justifyContent: 'flex-end', gap: 10,
     padding: '16px 28px 24px',
     flexShrink: 0,
-    borderTop: '1px solid var(--color-gray-100)',
+    borderTop: '1px solid #D8D9E0',
   },
   cancelBtn: {
     padding: '8px 20px', borderRadius: 'var(--radius-component)',
-    border: '1px solid var(--color-gray-200)', background: 'var(--color-white)',
+    border: '1px solid var(--color-border)', background: 'var(--color-white)',
     fontSize: 14, fontFamily: 'var(--font-family)',
     color: 'var(--color-gray-700)', cursor: 'pointer',
   },
