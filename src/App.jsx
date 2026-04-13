@@ -103,6 +103,12 @@ export default function App() {
     setKB(updated)
   }
 
+  function handleArchive(id) {
+    const updated = kb.map(i => i.id === id ? { ...i, archived: !i.archived } : i)
+    saveKB(updated)
+    setKB(updated)
+  }
+
   function handleEditSave(id, title, summary) {
     const updated = kb.map(i => i.id === id ? { ...i, title, summary } : i)
     saveKB(updated)
@@ -126,14 +132,14 @@ export default function App() {
     tags.map(t => [t, kb.filter(i => (i.tags || []).includes(t)).length])
   )
 
-  const isListView = currentView === 'inbox' || currentView === 'search' || currentView === 'tag'
+  const isListView = currentView === 'inbox' || currentView === 'search' || currentView === 'tag' || currentView === 'archive'
 
   return (
     <>
       <NavRail
         currentView={currentView}
         onViewChange={switchView}
-        itemCount={kb.length}
+        itemCount={kb.filter(i => !i.archived && i.type !== 'qa').length}
         tags={tags}
         tagCounts={tagCounts}
         selectedTag={selectedTag}
@@ -154,6 +160,7 @@ export default function App() {
             onUpdateTags={handleUpdateTags}
             onEditItem={setEditItem}
             onOpenDetail={setDetailItem}
+            onArchive={handleArchive}
           />
         )}
         {isListView && detailItem && (

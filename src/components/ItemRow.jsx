@@ -2,6 +2,7 @@ import { useState } from 'react'
 import * as HoverCard from '@radix-ui/react-hover-card'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import SourceIcon from './SourceIcon'
+import Tooltip from './Tooltip'
 import {
   ExternalLinkIcon,
   DotsHorizontalIcon,
@@ -13,6 +14,7 @@ import {
   ChevronRightIcon,
   PlusIcon,
   CheckIcon,
+  EnvelopeOpenIcon,
 } from '@radix-ui/react-icons'
 import { tagPalette, TEAM } from '../lib/kb'
 
@@ -90,7 +92,15 @@ function CreatorAvatar({ creatorId, size = 18 }) {
   )
 }
 
-export default function ItemRow({ item, onDelete, allTags = [], onUpdateTags, onEditItem, onOpenDetail }) {
+const ArchiveIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 15 15" fill="none">
+    <rect x="1.5" y="1.5" width="12" height="3" rx="0.6" stroke="currentColor" strokeWidth="1.2"/>
+    <path d="M2.5 4.5V12a1 1 0 001 1h8a1 1 0 001-1V4.5" stroke="currentColor" strokeWidth="1.2"/>
+    <path d="M5.5 7.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+  </svg>
+)
+
+export default function ItemRow({ item, onDelete, allTags = [], onUpdateTags, onEditItem, onOpenDetail, onArchive }) {
   const [hovered, setHovered]       = useState(false)
   const [hoverOpen, setHoverOpen]   = useState(false)
   const [menuOpen, setMenuOpen]     = useState(false)
@@ -137,29 +147,46 @@ export default function ItemRow({ item, onDelete, allTags = [], onUpdateTags, on
           <div style={styles.actions} onClick={e => e.stopPropagation()}>
             {/* External link — only for resource type */}
             {!isNote && item.url && (
+              <Tooltip label="Open">
+                <button
+                  style={{ ...styles.actionBtn, ...(hoveredBtn === 'link' ? styles.actionBtnHovered : {}) }}
+                  onClick={e => { e.stopPropagation(); window.open(item.url, '_blank') }}
+                  onMouseEnter={() => setHoveredBtn('link')}
+                  onMouseLeave={() => setHoveredBtn(null)}
+                >
+                  <ExternalLinkIcon width={13} height={13}/>
+                </button>
+              </Tooltip>
+            )}
+
+            {/* Archive / Move to inbox */}
+            <Tooltip label={item.archived ? 'Move to inbox' : 'Archive'}>
               <button
-                style={{ ...styles.actionBtn, ...(hoveredBtn === 'link' ? styles.actionBtnHovered : {}) }}
-                title="Open in new tab"
-                onClick={e => { e.stopPropagation(); window.open(item.url, '_blank') }}
-                onMouseEnter={() => setHoveredBtn('link')}
+                style={{ ...styles.actionBtn, ...(hoveredBtn === 'archive' ? styles.actionBtnHovered : {}) }}
+                onClick={e => { e.stopPropagation(); onArchive?.(item.id) }}
+                onMouseEnter={() => setHoveredBtn('archive')}
                 onMouseLeave={() => setHoveredBtn(null)}
               >
-                <ExternalLinkIcon width={13} height={13}/>
+                {item.archived
+                  ? <EnvelopeOpenIcon width={13} height={13}/>
+                  : <ArchiveIcon />
+                }
               </button>
-            )}
+            </Tooltip>
 
             {/* More menu */}
             <DropdownMenu.Root modal={false} onOpenChange={setMenuOpen}>
               <DropdownMenu.Trigger asChild>
-                <button
-                  style={{ ...styles.actionBtn, ...(hoveredBtn === 'more' || menuOpen ? styles.actionBtnHovered : {}) }}
-                  title="More"
-                  onClick={e => e.stopPropagation()}
-                  onMouseEnter={() => setHoveredBtn('more')}
-                  onMouseLeave={() => setHoveredBtn(null)}
-                >
-                  <DotsHorizontalIcon width={13} height={13}/>
-                </button>
+                <Tooltip label="More">
+                  <button
+                    style={{ ...styles.actionBtn, ...(hoveredBtn === 'more' || menuOpen ? styles.actionBtnHovered : {}) }}
+                    onClick={e => e.stopPropagation()}
+                    onMouseEnter={() => setHoveredBtn('more')}
+                    onMouseLeave={() => setHoveredBtn(null)}
+                  >
+                    <DotsHorizontalIcon width={13} height={13}/>
+                  </button>
+                </Tooltip>
               </DropdownMenu.Trigger>
 
               <DropdownMenu.Portal>

@@ -20,10 +20,19 @@ const AiChatIcon = () => (
   </div>
 )
 
+const ArchiveNavIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+    <rect x="1.5" y="1.5" width="12" height="3" rx="0.6" stroke="currentColor" strokeWidth="1.2"/>
+    <path d="M2.5 4.5V12a1 1 0 001 1h8a1 1 0 001-1V4.5" stroke="currentColor" strokeWidth="1.2"/>
+    <path d="M5.5 7.5h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+  </svg>
+)
+
 const NAV_ITEMS = [
-  { view: 'search', label: 'Search',  hint: '/', icon: <MagnifyingGlassIcon width={15} height={15}/> },
-  { view: 'inbox',  label: 'Inbox',              icon: <EnvelopeOpenIcon    width={15} height={15}/> },
-  { view: 'chat',   label: 'AI Chat', ai: true,  icon: <AiChatIcon /> },
+  { view: 'search',  label: 'Search',  hint: '/', icon: <MagnifyingGlassIcon width={15} height={15}/> },
+  { view: 'inbox',   label: 'Inbox',              icon: <EnvelopeOpenIcon    width={15} height={15}/> },
+  { view: 'archive', label: 'Archive',             icon: <ArchiveNavIcon /> },
+  { view: 'chat',    label: 'AI Chat', ai: true,  icon: <AiChatIcon /> },
 ]
 
 export default function NavRail({ currentView, onViewChange, itemCount, tags = [], tagCounts = {}, selectedTag, onTagSelect }) {

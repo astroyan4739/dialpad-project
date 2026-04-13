@@ -15,24 +15,27 @@ function getDateGroup(iso) {
 export default function ListPane({
   currentView, searchQuery, onSearchChange,
   items, onDelete, onOpenModal, selectedTag,
-  allTags, onUpdateTags, onEditItem, onOpenDetail,
+  allTags, onUpdateTags, onEditItem, onOpenDetail, onArchive,
 }) {
   const [addHovered, setAddHovered] = useState(false)
-  const isSearch = currentView === 'search' && searchQuery.trim()
-  const isTag    = currentView === 'tag'
+  const isSearch  = currentView === 'search' && searchQuery.trim()
+  const isTag     = currentView === 'tag'
+  const isArchive = currentView === 'archive'
 
   const filtered = isSearch
     ? items.filter(i =>
-        i.type !== 'qa' &&
+        i.type !== 'qa' && !i.archived &&
         (i.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (i.tags || []).some(t => t.toLowerCase().includes(searchQuery.toLowerCase())))
       )
     : isTag
-    ? items.filter(i => (i.tags || []).includes(selectedTag))
-    : items.filter(i => i.type !== 'qa')
+    ? items.filter(i => !i.archived && (i.tags || []).includes(selectedTag))
+    : isArchive
+    ? items.filter(i => i.archived)
+    : items.filter(i => i.type !== 'qa' && !i.archived)
 
-  // Group by date (inbox + tag views)
-  const grouped = isSearch
+  // Archive + Search: flat list. Inbox + Tag: group by date
+  const grouped = (isSearch || isArchive)
     ? [{ label: null, items: filtered }]
     : (() => {
         const order = ['Today', 'Yesterday', 'Older']
@@ -45,7 +48,7 @@ export default function ListPane({
         return order.filter(l => map[l]).map(l => ({ label: l, items: map[l] }))
       })()
 
-  const title = isTag ? selectedTag : currentView === 'search' ? 'Search' : 'Inbox'
+  const title = isTag ? selectedTag : currentView === 'search' ? 'Search' : isArchive ? 'Archive' : 'Inbox'
 
   return (
     <div style={styles.pane}>
@@ -81,19 +84,29 @@ export default function ListPane({
       <div style={styles.list}>
         {filtered.length === 0 ? (
           <div style={styles.empty}>
-            <svg style={styles.emptyIcon} width="40" height="40" viewBox="0 0 40 40" fill="none">
-              <circle cx="20" cy="20" r="17" stroke="currentColor" strokeWidth="2"/>
-              <path d="M13 20h14M20 13v14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-            <h3 style={styles.emptyHeading}>Nothing here yet</h3>
-            <p style={styles.emptyText}>Click <strong>+</strong> to add your first design resource.</p>
+            {isArchive ? (
+              <svg style={styles.emptyIcon} width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <rect x="5" y="7" width="30" height="8" rx="2" stroke="currentColor" strokeWidth="2"/>
+                <path d="M7 15v16a2 2 0 002 2h22a2 2 0 002-2V15" stroke="currentColor" strokeWidth="2"/>
+                <path d="M15 24h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            ) : (
+              <>
+                <svg style={styles.emptyIcon} width="40" height="40" viewBox="0 0 40 40" fill="none">
+                  <circle cx="20" cy="20" r="17" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M13 20h14M20 13v14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+                <h3 style={styles.emptyHeading}>Nothing here yet</h3>
+                <p style={styles.emptyText}>Click <strong>+</strong> to add your first design resource.</p>
+              </>
+            )}
           </div>
         ) : (
           grouped.map(({ label, items: groupItems }, i) => (
             <div key={label || 'results'} style={{ marginTop: 20 }}>
               {label && <div style={styles.groupLabel}>{label}</div>}
               {groupItems.map(item => (
-                <ItemRow key={item.id} item={item} onDelete={onDelete} allTags={allTags} onUpdateTags={onUpdateTags} onEditItem={onEditItem} onOpenDetail={onOpenDetail} />
+                <ItemRow key={item.id} item={item} onDelete={onDelete} allTags={allTags} onUpdateTags={onUpdateTags} onEditItem={onEditItem} onOpenDetail={onOpenDetail} onArchive={onArchive} />
               ))}
             </div>
           ))
