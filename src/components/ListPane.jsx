@@ -105,7 +105,7 @@ export default function ListPane({
 
 const styles = {
   pane:   { flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
-  header: { height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', borderBottom: '1px solid var(--color-gray-200)', flexShrink: 0 },
+  header: { height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', borderBottom: '1px solid rgba(216, 217, 224, 0.5)', flexShrink: 0 },
   title:  { fontSize: 16, fontWeight: 400, color: 'var(--color-gray-900)' },
   addBtn: {
     width: 28, height: 28, border: 'none', background: 'none',
@@ -118,7 +118,7 @@ const styles = {
     background: '#E8E5FF',
     color: 'var(--color-gray-900)',
   },
-  searchBar:   { padding: '10px 16px', borderBottom: '1px solid var(--color-gray-200)', flexShrink: 0 },
+  searchBar:   { padding: '10px 16px', borderBottom: '1px solid rgba(216, 217, 224, 0.5)', flexShrink: 0 },
   searchInput: {
     width: '100%', border: '1px solid var(--color-border)',
     borderRadius: 'var(--radius-component)', padding: '8px 12px',

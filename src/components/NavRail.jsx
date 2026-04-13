@@ -39,7 +39,7 @@ export default function NavRail({ currentView, onViewChange, itemCount, tags = [
           <rect x="1"  y="11" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.6"/>
           <rect x="11" y="11" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.3"/>
         </svg>
-        <span style={styles.logoText}>DKA</span>
+        <span style={styles.logoText}>Knowledge Hub</span>
       </div>
 
       <ul style={styles.items}>
@@ -117,7 +117,7 @@ const styles = {
     padding: '4px 8px 20px',
   },
   logoIcon: { color: 'var(--color-primary)', flexShrink: 0 },
-  logoText: { fontSize: 16, fontWeight: 600, color: 'var(--color-primary)' },
+  logoText: { fontSize: 13, fontWeight: 600, color: 'var(--color-primary)' },
   items: { listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 2 },
   item: {
     display: 'flex', alignItems: 'center', gap: 10,

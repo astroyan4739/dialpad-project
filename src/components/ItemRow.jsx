@@ -14,7 +14,7 @@ import {
   PlusIcon,
   CheckIcon,
 } from '@radix-ui/react-icons'
-import { tagPalette } from '../lib/kb'
+import { tagPalette, TEAM } from '../lib/kb'
 
 
 function TagsSubContent({ item, allTags, onUpdateTags }) {
@@ -80,12 +80,23 @@ function TagsSubContent({ item, allTags, onUpdateTags }) {
   )
 }
 
+function CreatorAvatar({ creatorId, size = 18 }) {
+  const creator = TEAM.find(t => t.id === creatorId)
+  if (!creator) return null
+  return (
+    <div style={{ width: size, height: size, borderRadius: '50%', background: creator.color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <span style={{ fontSize: size * 0.5, fontWeight: 600, color: '#fff', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{creator.initials[0]}</span>
+    </div>
+  )
+}
+
 export default function ItemRow({ item, onDelete, allTags = [], onUpdateTags, onEditItem, onOpenDetail }) {
   const [hovered, setHovered]       = useState(false)
   const [hoverOpen, setHoverOpen]   = useState(false)
   const [menuOpen, setMenuOpen]     = useState(false)
   const [hoveredBtn, setHoveredBtn] = useState(null)
   const isNote = item.type === 'qa'
+  const creator = TEAM.find(t => t.id === item.creatorId)
 
   const summaryText = isNote ? item.answer || item.summary : item.summary
 
@@ -98,8 +109,8 @@ export default function ItemRow({ item, onDelete, allTags = [], onUpdateTags, on
     <HoverCard.Root
       open={isNote ? false : (menuOpen ? false : hoverOpen)}
       onOpenChange={open => !isNote && !menuOpen && setHoverOpen(open)}
-      openDelay={120}
-      closeDelay={200}
+      openDelay={300}
+      closeDelay={0}
     >
 
       <HoverCard.Trigger asChild>
@@ -114,7 +125,15 @@ export default function ItemRow({ item, onDelete, allTags = [], onUpdateTags, on
             ? <div style={styles.noteIcon}><BookmarkFilledIcon width={11} height={11} color="white"/></div>
             : <SourceIcon url={item.url} />
           }
+
           <span style={styles.title}>{item.title}</span>
+          {creator && (
+            <div style={styles.creatorInline}>
+              <CreatorAvatar creatorId={item.creatorId} size={16}/>
+              <span style={styles.creatorName}>{creator.name}</span>
+            </div>
+          )}
+
           <div style={styles.actions} onClick={e => e.stopPropagation()}>
             {/* External link — only for resource type */}
             {!isNote && item.url && (
@@ -158,9 +177,8 @@ export default function ItemRow({ item, onDelete, allTags = [], onUpdateTags, on
                     </DropdownMenu.Portal>
                   </DropdownMenu.Sub>
 
-                  {/* Copy link + Edit only for resources */}
+                  {/* Copy link + Edit only for resources — same group as Tags */}
                   {!isNote && <>
-                    <DropdownMenu.Separator style={styles.menuSep}/>
                     <DropdownMenu.Item
                       style={styles.menuItem}
                       onSelect={() => item.url && navigator.clipboard.writeText(item.url)}
@@ -168,7 +186,6 @@ export default function ItemRow({ item, onDelete, allTags = [], onUpdateTags, on
                       <Link2Icon width={13} height={13}/>
                       Copy link
                     </DropdownMenu.Item>
-                    <DropdownMenu.Separator style={styles.menuSep}/>
                     <DropdownMenu.Item style={styles.menuItem} onSelect={() => onEditItem(item)}>
                       <Pencil1Icon width={13} height={13}/>
                       Edit
@@ -230,9 +247,12 @@ const styles = {
   rowHovered: { background: '#E8E5FF' },
   rowClickable: { cursor: 'pointer' },
   title: {
-    flex: 1, fontSize: 14, fontWeight: 500, color: 'var(--color-gray-900)',
+    fontSize: 14, fontWeight: 500, color: 'var(--color-gray-900)',
     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+    flex: 1,
   },
+  creatorInline: { display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 },
+  creatorName:   { fontSize: 12, color: 'var(--color-gray-500)', whiteSpace: 'nowrap' },
   noteIcon: {
     width: 20, height: 20, borderRadius: 5, flexShrink: 0,
     background: 'var(--color-primary)',
@@ -264,7 +284,7 @@ const styles = {
     cursor: 'pointer', outline: 'none',
     userSelect: 'none',
   },
-  menuSep: { height: 1, background: '#D8D9E0', margin: '4px 0' },
+  menuSep: { height: '0.5px', background: '#D8D9E0', margin: '4px 0' },
   menuEmpty: { padding: '6px 10px', fontSize: 12, color: 'var(--color-gray-400)' },
   tagSearchWrap: { padding: '6px 8px' },
   tagSearchInput: {

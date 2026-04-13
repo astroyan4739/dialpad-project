@@ -1,7 +1,38 @@
+import { useState } from 'react'
+
 const iconContainer = {
   width: 20, height: 20, borderRadius: 5,
   display: 'flex', alignItems: 'center', justifyContent: 'center',
   flexShrink: 0,
+}
+
+function FaviconImg({ domain, container }) {
+  const [failed, setFailed] = useState(false)
+  const src = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`
+
+  if (failed) {
+    return (
+      <div style={{ ...container, background: 'var(--color-gray-100)' }}>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="var(--color-gray-400)" strokeWidth="1.5"/>
+          <path d="M12 3c-2.5 3-4 5.5-4 9s1.5 6 4 9M12 3c2.5 3 4 5.5 4 9s-1.5 6-4 9M3 12h18" stroke="var(--color-gray-400)" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ ...container, background: 'var(--color-gray-100)', overflow: 'hidden' }}>
+      <img
+        src={src}
+        width={container.width}
+        height={container.height}
+        style={{ display: 'block', borderRadius: 5 }}
+        onError={() => setFailed(true)}
+        alt=""
+      />
+    </div>
+  )
 }
 
 export default function SourceIcon({ url, size = 20 }) {
@@ -40,12 +71,17 @@ export default function SourceIcon({ url, size = 20 }) {
     )
   }
 
-  return (
-    <div style={{ ...container, background: 'var(--color-gray-100)' }}>
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="9" stroke="var(--color-gray-400)" strokeWidth="1.5"/>
-        <path d="M12 3c-2.5 3-4 5.5-4 9s1.5 6 4 9M12 3c2.5 3 4 5.5 4 9s-1.5 6-4 9M3 12h18" stroke="var(--color-gray-400)" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    </div>
-  )
+
+  if (!domain) {
+    return (
+      <div style={{ ...container, background: 'var(--color-gray-100)' }}>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="var(--color-gray-400)" strokeWidth="1.5"/>
+          <path d="M12 3c-2.5 3-4 5.5-4 9s1.5 6 4 9M12 3c2.5 3 4 5.5 4 9s-1.5 6-4 9M3 12h18" stroke="var(--color-gray-400)" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      </div>
+    )
+  }
+
+  return <FaviconImg domain={domain} container={container} />
 }

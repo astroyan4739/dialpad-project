@@ -296,7 +296,7 @@ export default function ChatPane({ kb, onKBChange }) {
 
 const styles = {
   pane:    { flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
-  header:  { height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', borderBottom: '1px solid var(--color-gray-200)', flexShrink: 0 },
+  header:  { height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', borderBottom: '1px solid rgba(216, 217, 224, 0.5)', flexShrink: 0 },
 
   sessionBtn: {
     display: 'flex', alignItems: 'center', gap: 6,
@@ -369,7 +369,7 @@ const styles = {
   },
   sourceTitle: { fontSize: 12, fontWeight: 500, color: 'var(--color-gray-900)', lineHeight: 1.4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
 
-  inputArea: { padding: '14px 20px 20px', borderTop: '1px solid var(--color-gray-200)', display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0 },
+  inputArea: { padding: '14px 20px 20px', borderTop: '1px solid rgba(216, 217, 224, 0.5)', display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0 },
   saveNoteBtn: {
     display: 'inline-flex', alignItems: 'center', gap: 5,
     marginTop: 10,

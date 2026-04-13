@@ -9,6 +9,29 @@ const HEADERS = {
   'anthropic-dangerous-direct-browser-access': 'true',
 }
 
+// Fetches real title + description from a URL via CORS proxy
+// Special-cases GitHub Gists to use the API directly
+export async function fetchPageMeta(url) {
+  try {
+    // Strip tracking params so the proxy gets a clean URL
+    const cleanUrl = url.split('?')[0]
+    const proxy    = `https://corsproxy.io/?url=${encodeURIComponent(cleanUrl)}`
+    console.log('[fetchPageMeta] fetching:', proxy)
+    const res  = await fetch(proxy, { signal: AbortSignal.timeout(8000) })
+    const html = await res.text()
+    const doc  = new DOMParser().parseFromString(html, 'text/html')
+    const title = doc.querySelector('title')?.textContent?.trim() || ''
+    const desc  =
+      doc.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+      doc.querySelector('meta[name="description"]')?.getAttribute('content') || ''
+    console.log('[fetchPageMeta] result:', { title, desc })
+    return { title, desc }
+  } catch (e) {
+    console.warn('[fetchPageMeta] failed:', e)
+    return null
+  }
+}
+
 // Extracts JSON object from a string even if Claude adds surrounding text
 export function extractJSON(text) {
   try { return JSON.parse(text) } catch {}

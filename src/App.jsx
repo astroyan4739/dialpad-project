@@ -7,7 +7,7 @@ import AddResourceModal from './components/AddResourceModal'
 import EditItemModal from './components/EditItemModal'
 import NoteDetailPane from './components/NoteDetailPane'
 import { getKB, saveKB, addItem, deleteItem, SEED_ITEMS, extractUrl } from './lib/kb'
-import { callClaude, extractJSON } from './lib/claude'
+import { callClaude, extractJSON, fetchPageMeta } from './lib/claude'
 
 export default function App() {
   const [kb, setKB]                     = useState([])
@@ -47,9 +47,16 @@ export default function App() {
     if (!text?.trim()) return
     showToast('Saving…', 'saving')
     try {
-      const system = `You are a design knowledge assistant. The user will paste text, a URL, or a note. Your job is ALWAYS to return valid JSON — never refuse, never explain. If given a URL you cannot visit, infer the title and topic from the URL path and domain. Respond ONLY with this JSON shape: {"title": "", "summary": "", "tags": ["tag1", "tag2", "tag3"]}. Rules: title is concise (≤8 words), summary is 1–2 sentences, tags is exactly 3 lowercase strings. No markdown, no code fences, no explanation — just the raw JSON object.`
-      const parsed = extractJSON(await callClaude(system, text))
-      const updated = addItem(kbRef.current, { type: 'resource', title: parsed.title, summary: parsed.summary, tags: parsed.tags, url: extractUrl(text), content: text })
+      const url  = extractUrl(text)
+      const meta = url ? await fetchPageMeta(url) : null
+
+      const userMsg = meta
+        ? `URL: ${url}\nTitle: ${meta.title}\nDescription: ${meta.desc}`
+        : text
+
+      const system = `You are a design knowledge assistant. The user will paste text, a URL, or a note — sometimes with extracted page title and description. Your job is ALWAYS to return valid JSON — never refuse, never explain. Respond ONLY with this JSON shape: {"title": "", "summary": "", "tags": ["tag1", "tag2", "tag3"]}. Rules: title is concise (≤8 words), summary is 1–2 sentences, tags is exactly 3 lowercase strings. No markdown, no code fences, no explanation — just the raw JSON object.`
+      const parsed  = extractJSON(await callClaude(system, userMsg))
+      const updated = addItem(kbRef.current, { type: 'resource', title: parsed.title, summary: parsed.summary, tags: parsed.tags, url, content: text, creatorId: 'u1' })
       setKB(updated)
       showToast('Saved to inbox', 'done')
     } catch {
@@ -109,7 +116,7 @@ export default function App() {
   }
 
   function handleSaveResource(title, summary, tags, content) {
-    const updated = addItem(kb, { type: 'resource', title, summary, tags, url: extractUrl(content), content })
+    const updated = addItem(kb, { type: 'resource', title, summary, tags, url: extractUrl(content), content, creatorId: 'u1' })
     setKB(updated)
     switchView('inbox')
   }
@@ -190,9 +197,10 @@ const styles = {
     flex: 1,
     display: 'flex',
     overflow: 'hidden',
-    border: '1px solid var(--color-gray-200)',
+    border: '1px solid rgba(216, 217, 224, 0.5)',
     borderRadius: 16,
     position: 'relative',
+    boxShadow: '0 4px 20px 0 rgba(180, 160, 255, 0.18), 0 1px 4px 0 rgba(180, 160, 255, 0.10)',
   },
   toast: {
     position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)',

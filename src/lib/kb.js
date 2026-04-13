@@ -45,6 +45,42 @@ export const SEED_ITEMS = [
     creatorId: 'u4',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
   },
+  {
+    id: 'seed-5', type: 'resource',
+    title: 'The UX of AI Products Is Still Broken',
+    summary: 'A sharp take on why most AI product interfaces fail users — the gap between capability and comprehension, the illusion of control, and what it actually means to design for a model that can be wrong. A call for designers to take AI UX seriously before engineers cement the defaults.',
+    tags: ['AI UX', 'product design', 'design critique'],
+    url: 'https://x.com/eeismann/status/2041143017390878818', content: '',
+    creatorId: 'u1',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 1).toISOString(),
+  },
+  {
+    id: 'seed-6', type: 'resource',
+    title: 'Impeccable Style',
+    summary: 'A curated design reference exploring what it means to have an impeccable visual point of view — covering typography, layout, and the discipline of restraint. A bookmark-worthy resource for designers who want to develop a sharper, more considered aesthetic sensibility.',
+    tags: ['design reference', 'typography', 'craft'],
+    url: 'https://impeccable.style/', content: '',
+    creatorId: 'u2',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+  },
+  {
+    id: 'seed-7', type: 'resource',
+    title: 'Developing the Agent Interaction',
+    summary: 'Linear\'s developer documentation covering how to build and integrate agents into the Linear workflow — including the agent interaction model, supported event types, and patterns for creating agent-native product experiences.',
+    tags: ['developer tools', 'agents', 'API'],
+    url: 'https://linear.app/developers/agent-interaction', content: '',
+    creatorId: 'u3',
+    createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+  },
+  {
+    id: 'seed-8', type: 'resource',
+    title: 'The design process is dead. Here\'s what\'s replacing it. | Jenny Wen',
+    summary: 'Jenny Wen, head of design at Anthropic (Claude), argues that the traditional design process is being fundamentally replaced by AI-native ways of working — and what that means for designers who want to stay relevant and lead in this new era.',
+    tags: ['AI tools', 'design workflow', 'design culture'],
+    url: 'https://www.youtube.com/watch?v=eh8bcBIAAFo', content: '',
+    creatorId: 'u4',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 28).toISOString(),
+  },
 ]
 
 // Returns the first URL found in text, or ''
@@ -74,6 +110,7 @@ export function addItem(items, item) {
     content:   item.content   ?? '',
     question:  item.question  ?? undefined,
     answer:    item.answer    ?? undefined,
+    creatorId: item.creatorId ?? undefined,
     createdAt: item.createdAt ?? new Date().toISOString(),
   }
   const updated = [newItem, ...items]
