@@ -175,9 +175,9 @@ export default function ItemRow({ item, onDelete, allTags = [], onUpdateTags, on
             </Tooltip>
 
             {/* More menu */}
-            <DropdownMenu.Root modal={false} onOpenChange={setMenuOpen}>
-              <DropdownMenu.Trigger asChild>
-                <Tooltip label="More">
+            <Tooltip label="More">
+              <DropdownMenu.Root modal={false} onOpenChange={setMenuOpen}>
+                <DropdownMenu.Trigger asChild>
                   <button
                     style={{ ...styles.actionBtn, ...(hoveredBtn === 'more' || menuOpen ? styles.actionBtnHovered : {}) }}
                     onClick={e => e.stopPropagation()}
@@ -186,8 +186,7 @@ export default function ItemRow({ item, onDelete, allTags = [], onUpdateTags, on
                   >
                     <DotsHorizontalIcon width={13} height={13}/>
                   </button>
-                </Tooltip>
-              </DropdownMenu.Trigger>
+                </DropdownMenu.Trigger>
 
               <DropdownMenu.Portal>
                 <DropdownMenu.Content side="bottom" align="end" sideOffset={4} style={styles.menu}>
@@ -232,7 +231,8 @@ export default function ItemRow({ item, onDelete, allTags = [], onUpdateTags, on
 
                 </DropdownMenu.Content>
               </DropdownMenu.Portal>
-            </DropdownMenu.Root>
+              </DropdownMenu.Root>
+            </Tooltip>
           </div>
         </div>
       </HoverCard.Trigger>
