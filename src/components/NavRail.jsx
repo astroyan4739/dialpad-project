@@ -42,7 +42,7 @@ export default function NavRail({ currentView, onViewChange, itemCount, tags = [
   return (
     <nav style={styles.rail}>
       <div style={styles.logo}>
-        <svg style={styles.logoIcon} width="20" height="20" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <svg style={styles.logoIcon} width="24" height="24" viewBox="0 0 18 18" fill="none" aria-hidden="true">
           <rect x="1"  y="1"  width="6" height="6" rx="1.5" fill="currentColor" opacity="0.9"/>
           <rect x="11" y="1"  width="6" height="6" rx="1.5" fill="currentColor" opacity="0.6"/>
           <rect x="1"  y="11" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.6"/>

@@ -96,6 +96,7 @@ export default function ChatPane({ kb, onKBChange }) {
       type: 'qa', title: msg.q.slice(0, 60),
       summary: msg.answer.slice(0, 200),
       answer: msg.answer, question: msg.q, tags: ['note'],
+      creatorId: 'u1',
     })
     onKBChange(updated)
     setSavedIds(prev => new Set([...prev, msg.id]))
