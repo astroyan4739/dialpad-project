@@ -1,7 +1,33 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm create:*)"
+      "Bash(npm create:*)",
+      "Bash(open:*)",
+      "Bash(npm run *)",
+      "Bash(npm uninstall *)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(node -e \"require\\('puppeteer'\\)\")",
+      "Bash(npm install *)",
+      "Bash(node -e ' *)",
+      "Bash(npx skills *)",
+      "Bash(python3 -m http.server 8765)",
+      "Bash(echo \"server PID: $!\")",
+      "Bash(npx hyperframes *)",
+      "Bash(pip install *)",
+      "Bash(pip3 install *)",
+      "Bash(brew list *)",
+      "Bash(say -v \"?\")",
+      "Bash(awk '{print $1}')",
+      "Bash(awk '{print $1, $2}')",
+      "Bash(say -v \"Evan\" --rate=165 \"One day. Zero handoffs.\" -o test-evan.aiff)",
+      "Bash(say -v \"Daniel\" --rate=165 \"One day. Zero handoffs.\" -o test-daniel.aiff)",
+      "Bash(brew install *)",
+      "Bash(ffmpeg -i narration.aiff -ar 44100 narration.wav -y)",
+      "Bash(/opt/homebrew/bin/ffmpeg -i /Users/astro/Desktop/dialpad_project/videos/iteration-timeline/narration.aiff -ar 44100 /Users/astro/Desktop/dialpad_project/videos/iteration-timeline/narration.wav -y)",
+      "Bash(/opt/homebrew/var/homebrew/tmp/.cellar/ffmpeg/8.1/bin/ffmpeg -i narration.aiff -ar 44100 narration.wav -y)",
+      "Bash(afconvert -f WAVE -d LEI16@44100 narration.aiff narration.wav)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }

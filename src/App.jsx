@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Agentation } from 'agentation'
+
 import NavRail from './components/NavRail'
 import ListPane from './components/ListPane'
 import ChatPane from './components/ChatPane'
@@ -194,7 +194,7 @@ export default function App() {
         />
       )}
 
-      {import.meta.env.DEV && <Agentation />}
+
     </>
   )
 }
